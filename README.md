@@ -7,7 +7,7 @@ If you do run out of the allocated time, you can describe how you would complete
 These are 10 tasks to try and complete below:
 # Tasks
 
-// TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (if possible)
+// TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (with Cosmos DB Emulator if possible)
 
 // TASK 2: Add FamilyDatabase as the value to DatabaseId and add FamilyContainer as the value to ContainerId
 
