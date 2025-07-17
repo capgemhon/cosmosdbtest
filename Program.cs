@@ -4,8 +4,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using NSubstitute;
 
 namespace todo
 {
@@ -23,9 +25,9 @@ namespace todo
     {
         // <Constants>
         private const string EndpointUrl = "https://localhost:8081/";
-        // TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (if possible)
-        private const string AuthorizationKey = "";
-        // TASK 2: Add FamilyDatabase as the value to DatabaseId and add FamilyContainer as the value to ContainerId
+        // TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (if possible). If you cant connect, can you type use the method GenerateRandomBase64String with 32 bytes instead below and remove const.
+        private string AuthorizationKey = GenerateRandomBase64String(32);
+        // TASK 2: Add FamilyDatabase as the value to DatabaseId and add FamilyContainer as the value to ContainerId. What is the purpose of const keyword?
         private const string DatabaseId = "";
         private const string ContainerId = "";
         // </Constants>
@@ -38,8 +40,10 @@ namespace todo
                 RequestTimeout = TimeSpan.FromSeconds(60)
             };
 
-            // TASK 3: Write a try catch block to handle CosmosException specifying Cosmos DB error: error message, then Exception specifying General error: error message
-            CosmosClient cosmosClient = new CosmosClient(EndpointUrl, AuthorizationKey, options);
+            // CosmosClient cosmosClient = new CosmosClient(EndpointUrl, AuthorizationKey, options);
+
+            // Using NSubstitute:
+            CosmosClient cosmosClient = Substitute.For<CosmosClient>();
             await Program.CreateDatabaseAsync(cosmosClient);
             await Program.CreateContainerAsync(cosmosClient);
             await Program.AddItemsToContainerAsync(cosmosClient);
@@ -49,6 +53,17 @@ namespace todo
             await Program.DeleteDatabaseAndCleanupAsync(cosmosClient);
         }
         // </Main>
+        static string GenerateRandomBase64String(int byteLength)
+        {
+            byte[] randomBytes = new byte[byteLength];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomBytes);
+            }
+
+            return Convert.ToBase64String(randomBytes);
+        }
+
 
         // <CreateDatabaseAsync>
         /// <summary>
@@ -113,7 +128,12 @@ namespace todo
             try
             {
                 // Read the item to see if it exists.  
-                ItemResponse<Family> andersenFamilyResponse = await container.ReadItemAsync<Family>(andersenFamily.Id, new PartitionKey(andersenFamily.LastName));
+                //ItemResponse<Family> andersenFamilyResponse = await container.ReadItemAsync<Family>(andersenFamily.Id, new PartitionKey(andersenFamily.LastName));
+
+                // NSubstitute for ReadItemAsync
+                ItemResponse<Family> andersenFamilyResponse = Substitute.For<ItemResponse<Family>>();
+                andersenFamilyResponse.Resource.Returns(andersenFamily);
+
                 Console.WriteLine("Item in database with id: {0} already exists\n", andersenFamilyResponse.Resource.Id);
             }
             catch (CosmosException ex) when (ex.SubStatusCode == (int)HttpStatusCode.NotFound)
@@ -162,7 +182,11 @@ namespace todo
             };
 
             // Create an item in the container representing the Wakefield family. Note we provide the value of the partition key for this item, which is "Wakefield"
-            ItemResponse<Family> wakefieldFamilyResponse = await container.UpsertItemAsync<Family>(wakefieldFamily, new PartitionKey(wakefieldFamily.LastName));
+            //ItemResponse<Family> wakefieldFamilyResponse = await container.UpsertItemAsync<Family>(wakefieldFamily, new PartitionKey(wakefieldFamily.LastName));
+
+            // NSubstitute for UpsertItemAsync
+            ItemResponse<Family> wakefieldFamilyResponse = Substitute.For<ItemResponse<Family>>();
+            wakefieldFamilyResponse.Resource.Returns(wakefieldFamily);
 
             // Note that after creating the item, we can access the body of the item with the Resource property off the ItemResponse. We can also access the RequestCharge property to see the amount of RUs consumed on this request.
             Console.WriteLine("Created item in database with id: {0}\n", wakefieldFamilyResponse.Resource.Id);
@@ -174,7 +198,7 @@ namespace todo
             // School Address - State: CA, County: Santa Clara, City: Santa Clara with SchoolName: Santa Clara High School
             // Pets - Fluffy, and Shadow
 
-            // TASK 6: Place this into a refactored method as follows (if ppssible)
+            // TASK 6: Place this into a refactored method as follows (if possible)
             //public Family CreateFamily(
             //    string familyId,
             //    string lastName,
@@ -207,14 +231,19 @@ namespace todo
 
             List<Family> families = new List<Family>();
 
-            FeedIterator<Family> feedIterator = container.GetItemQueryIterator<Family>(queryDefinition);
+            // NSubstitute for FeedIterator and FeedResponse
+            FeedIterator<Family> feedIterator = Substitute.For<FeedIterator<Family>>();
+            FeedResponse<Family> feedResponse = Substitute.For<FeedResponse<Family>>();
+            Family familyStub = new Family { Id = "Andersen.1", LastName = "Andersen" };
+            feedResponse.GetEnumerator().Returns(new List<Family> { familyStub }.GetEnumerator());
+            feedIterator.HasMoreResults.Returns(true, false);
+            feedIterator.ReadNextAsync().Returns(Task.FromResult(feedResponse));
 
             while (feedIterator.HasMoreResults)
             {
                 FeedResponse<Family> response = await feedIterator.ReadNextAsync();
                 foreach (Family family in response)
                 {
-                    // Process each family item
                     families.Add(family);
                     Console.WriteLine("\tRead {0}\n", family);
                 }
@@ -230,18 +259,30 @@ namespace todo
         {
             Container container = cosmosClient.GetContainer(Program.DatabaseId, Program.ContainerId);
 
-            ItemResponse<Family> wakefieldFamilyResponse = await container.ReadItemAsync<Family>("Wakefield.7", new PartitionKey("Wakefield"));
-            Family itemBody = wakefieldFamilyResponse;
+            // NSubstitute for ReadItemAsync
+            ItemResponse<Family> wakefieldFamilyResponse = Substitute.For<ItemResponse<Family>>();
+            Family wakefieldFamilyStub = new Family
+            {
+                Id = "Wakefield.7",
+                LastName = "Wakefield",
+                IsRegistered = false,
+                Children = new[] { new Child { Grade = 5 } }
+            };
+            wakefieldFamilyResponse.Resource.Returns(wakefieldFamilyStub);
+            Family itemBody = wakefieldFamilyResponse.Resource;
 
             // update registration status from false to true
             itemBody.IsRegistered = true;
             // update grade of child
             itemBody.Children[0].Grade = 6;
 
-            // replace the item with the updated content
-            wakefieldFamilyResponse = await container.ReplaceItemAsync<Family>(itemBody, itemBody.Id, new PartitionKey(itemBody.LastName));
+            // NSubstitute for ReplaceItemAsync
+            ItemResponse<Family> replacedFamilyResponse = Substitute.For<ItemResponse<Family>>();
+            replacedFamilyResponse.Resource.Returns(itemBody);
+            wakefieldFamilyResponse = replacedFamilyResponse;
 
             Console.WriteLine("Updated Family [{0},{1}].\n \tBody is now: {2}\n", itemBody.LastName, itemBody.Id, wakefieldFamilyResponse.Resource);
+
         }
         // </ReplaceFamilyItemAsync>
 
@@ -290,6 +331,8 @@ namespace todo
 
         // TASK 9: How would you retrieve the EndpointUrl, and AuthorisationKey in a more secure way? Just describe as pseudocode.
 
-        // TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that specificmoment, what can you do next? Just describe as pseudocode.
+        // TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that specific moment, what can you do next? Just describe as pseudocode.
+
+        // TASK 11: Can you explain why we have used NSubstitute as a framework throughout in the codebase?
     }
 }

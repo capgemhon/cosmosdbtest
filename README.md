@@ -7,9 +7,9 @@ If you do run out of the allocated time, you can describe how you would complete
 These are 10 tasks to try and complete below:
 # Tasks
 
-// TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (with Cosmos DB Emulator if possible)
+// TASK 1: Replace the AuthorizationKey with your Cosmos DB account key to try and connect to local database (if possible). If you cant connect, can you type use the method GenerateRandomBase64String with 32 bytes instead below and remove const.
 
-// TASK 2: Add FamilyDatabase as the value to DatabaseId and add FamilyContainer as the value to ContainerId
+// TASK 2: Add FamilyDatabase as the value to DatabaseId and add FamilyContainer as the value to ContainerId. What is the purpose of const keyword?
 
 // TASK 3: Write a try catch block to handle CosmosException specifying Cosmos DB error: error message, then Exception specifying General error: error message
 
@@ -37,8 +37,21 @@ These are 10 tasks to try and complete below:
 
 // TASK 7: Can you refactor this query to use a parameterized query instead of hardcoding the LastName value? 
 
-// TASK 8: Add a method to print the contents of a Family object in a readable format containing each of their attributes including Id, LastName, Address, and IsRegistered, and if you can Parents and Children.
+// TASK 8: Add a method to print the contents of a Family object in a readable format containing each of their attributes including Id, LastName, Address, and IsRegistered, and if you can Parents and Children. You can describe as pseudocode as an alternative approach.
+// E.g. an example of pseudocode can be below
 
-// TASK 9: How would you store the EndpointUrl, and AuthorisationKey in a more secure way? Just describe as comments.
+// Class Family:
+//     Attributes:
+//     Id: Integer
 
-// TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that moment? Just describe as comments.
+// Method PrintDetails() :
+//     Print "Family Details:"
+//     Print "----------------"
+//     Print "ID: " + Id
+
+
+// TASK 9: How would you retrieve the EndpointUrl, and AuthorisationKey in a more secure way? Just describe as pseudocode.
+
+// TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that specific moment, what can you do next? Just describe as pseudocode.
+
+// TASK 11: Can you explain why we have used NSubstitute as a framework throughout in the codebase?
