@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace todo
+namespace cosmosdbtest.Models
 {
     public class Family
     {

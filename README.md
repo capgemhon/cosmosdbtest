@@ -55,3 +55,13 @@ These are 10 tasks to try and complete below:
 // TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that specific moment, what can you do next? Just describe as pseudocode.
 
 // TASK 11: Can you explain why we have used NSubstitute as a framework throughout in the codebase?
+
+// UNIT TESTS. You can write this as a comment
+
+// TASK 12: Add an assert to check that the first name of first parent is Bob
+
+// TASK 13: Add an assert to check that the first name of second parent is Mary
+
+// TASK 14: Add an assert to check that the first name of first child is Jan
+
+// TASK 15: Add an assert to check that the country of family address is Santa Clara

@@ -7,9 +7,10 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using cosmosdbtest.Models;
 using NSubstitute;
 
-namespace todo
+namespace cosmosdbtest
 {
 
     // ----------------------------------------------------------------------------------------------------------
