@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
@@ -274,10 +275,21 @@ namespace todo
         }
         // </DeleteDatabaseAndCleanupAsync>
 
-        // TASK 8: Add a method to print the contents of a Family object in a readable format containing each of their attributes including Id, LastName, Address, and IsRegistered, and if you can Parents and Children.
+        // TASK 8: Add a method to print the contents of a Family object in a readable format containing each of their attributes including Id, LastName, Address, and IsRegistered, and if you can Parents and Children. You can describe as pseudocode as an alternative approach.
+        // E.g. an example of pseudocode can be below
 
-        // TASK 9: How would you store the EndpointUrl, and AuthorisationKey in a more secure way? Just describe as comments.
+        // Class Family:
+        //     Attributes:
+        //     Id: Integer
 
-        // TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that moment? Just describe as comments.
+        // Method PrintDetails() :
+        //     Print "Family Details:"
+        //     Print "----------------"
+        //     Print "ID: " + Id
+
+
+        // TASK 9: How would you retrieve the EndpointUrl, and AuthorisationKey in a more secure way? Just describe as pseudocode.
+
+        // TASK 10: How would you handle the case when the Cosmos DB service is unavailable at that specificmoment, what can you do next? Just describe as pseudocode.
     }
 }
